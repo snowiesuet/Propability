@@ -1,0 +1,14 @@
+{
+  "outcome": "breach",
+  "confidence": "provisional_observed_samples_only",
+  "ending_timestamp": "2026-01-21T10:16:00.0000000-05:00",
+  "ending_balance": "24308.50",
+  "ending_observed_equity": "24265.50",
+  "loss_floor": "24266.00",
+  "completed_sessions": 13,
+  "largest_completed_winning_day": "197.00",
+  "position_at_stop": -1,
+  "purchase_fee": null,
+  "net_cash_profit": null,
+  "interpretation": "One attempt from input start. Missing intrabar observations may hide an earlier breach; no actual liquidation is synthesized. A pass is sampled eligibility, not proof of account survival."
+}

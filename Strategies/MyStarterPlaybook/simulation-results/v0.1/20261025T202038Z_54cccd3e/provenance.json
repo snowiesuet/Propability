@@ -1,0 +1,76 @@
+{
+  "simulator_revision": "0.1.0",
+  "strategy_version": "v0.1",
+  "run_id": "20261025T1948510645143Z_da023b58acb14391a3d93cbeb2cf8a67",
+  "inputs": [
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\logs\\logging-on\\0.1\\run_metadata.json",
+      "sha256": "52c7ca34ebe79c054a6a1176105a88f6b652eab2ba7d030b481a066aa6f6bf41"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\logs\\logging-on\\0.1\\executions.csv",
+      "sha256": "4c8bd0d597ea77f04f924bf5b75a8e9551eacc3f6f3b7ea956ddd8b4da8db10b"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\logs\\logging-on\\0.1\\trades.csv",
+      "sha256": "d8a7121d4396d803026dcef89d90cc36fd6ab2ed1d041adaedd38e73aaf990fc"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\logs\\logging-on\\0.1\\equity.csv",
+      "sha256": "71d918dacbd8f49c2a71961ee4b56a19663c05715ff7e7fb002391e3cdaff53b"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\logs\\logging-on\\0.1\\bars.csv",
+      "sha256": "1d20564a0baf4d5ff1c17392d90715d09471b55e057c600d91161844696a15a7"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\logs\\logging-on\\0.1\\analyzer-trades.csv",
+      "sha256": "f9cb2aa89c23efd82edf27962e2c41c1069e65cf88dd003a4a632d0aab566583"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\logs\\logging-on\\0.1\\analyzer-summary.csv",
+      "sha256": "f074755f71d4e3b93a4785d5a776a6eb3da56042e5e4f50d2c4913564146af16"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\simulator\\configs\\lucidflex_25k_provisional.json",
+      "sha256": "470dc5e215568b5a85538deaa19d2ab69dac02e8d3ae459a9c49fdcee2c1d30b"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\rules\\lucidflex_25k_2026-10-22.md",
+      "sha256": "b70fffb74da5d3deffd9de2997d11242dee2410af72bfb8bb2d778221460e112"
+    },
+    {
+      "path": "C:\\My Documents\\projects\\NinjaTrader\\Strategies\\MyStarterPlaybook\\simulator\\replay.py",
+      "sha256": "0268c5cefe5121df3b2942314f46c64042b7b8e59f513807c3c4ae80d4264712"
+    }
+  ],
+  "config": {
+    "scenario_id": "lucidflex_25k_dll_off_40pct_observed_v1",
+    "strategy_version": "v0.1",
+    "rules_snapshot": "../../../../rules/lucidflex_25k_2026-10-22.md",
+    "starting_balance": "25000",
+    "profit_target": "1250",
+    "drawdown_distance": "1000",
+    "locked_floor": "25100",
+    "consistency_limit": "0.40",
+    "commission_per_contract_per_side": "0.50",
+    "daily_loss_limit": null,
+    "contracts": 1,
+    "session_reset_source_hour": 18,
+    "source_timezone": "Eastern Standard Time",
+    "purchase_fee": null,
+    "assumptions": [
+      "Historical scenario from the October 22 rules snapshot, not verified current provider terms.",
+      "DLL-off configuration; no DLL amount is guessed.",
+      "Strict 40% largest winning-day net profit / total net profit; no consistency cushion.",
+      "Session changes at 18:00 on the Eastern source wall clock. Holiday/calendar details remain unverified.",
+      "Loss floor ratchets only after a completed session, capped at 25100; equity <= floor breaches at observed samples.",
+      "Pass eligibility is evaluated at completed session end while flat, after updating the floor.",
+      "Only session rollovers observed in the input establish a completed session. The last session is not forced closed.",
+      "One original MNQ contract only; no layering, quantity scaling, synthetic liquidation, or overnight positions.",
+      "Fixed costs replace unknown/platform costs using gross P&L, never subtract both.",
+      "Evaluation purchase fee is unknown; net cash profitability is unavailable."
+    ],
+    "rules_snapshot_path": "C:\\My Documents\\projects\\NinjaTrader\\rules\\lucidflex_25k_2026-10-22.md"
+  }
+}

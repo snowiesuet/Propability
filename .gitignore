@@ -1,0 +1,9 @@
+# Preserved Git metadata from the former MyStarterPlaybook repository.
+.legacy-git/
+
+# Local Python caches and virtual environments.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

@@ -1,0 +1,28 @@
+{
+  "scenario_id": "lucidflex_25k_dll_off_40pct_observed_v1",
+  "strategy_version": "v0.1",
+  "rules_snapshot": "../../../../rules/lucidflex_25k_2026-10-22.md",
+  "starting_balance": "25000",
+  "profit_target": "1250",
+  "drawdown_distance": "1000",
+  "locked_floor": "25100",
+  "consistency_limit": "0.40",
+  "commission_per_contract_per_side": "0.50",
+  "daily_loss_limit": null,
+  "contracts": 1,
+  "session_reset_source_hour": 18,
+  "source_timezone": "Eastern Standard Time",
+  "purchase_fee": null,
+  "assumptions": [
+    "Historical scenario from the October 22 rules snapshot, not verified current provider terms.",
+    "DLL-off configuration; no DLL amount is guessed.",
+    "Strict 40% largest winning-day net profit / total net profit; no consistency cushion.",
+    "Session changes at 18:00 on the Eastern source wall clock. Holiday/calendar details remain unverified.",
+    "Loss floor ratchets only after a completed session, capped at 25100; equity <= floor breaches at observed samples.",
+    "Pass eligibility is evaluated at completed session end while flat, after updating the floor.",
+    "Only session rollovers observed in the input establish a completed session. The last session is not forced closed.",
+    "One original MNQ contract only; no layering, quantity scaling, synthetic liquidation, or overnight positions.",
+    "Fixed costs replace unknown/platform costs using gross P&L, never subtract both.",
+    "Evaluation purchase fee is unknown; net cash profitability is unavailable."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "strategy_version": "v0.1",
+  "description": "First strategy iteration, designated by user; existing run paths preserved.",
+  "recorded_date": "2026-10-25",
+  "source_snapshot": [
+    {
+      "file": "source/NYOpenFairPriceStrategy.cs",
+      "sha256": "C9E89905F4BD2E88E9ECAA281AA33C7F2C8F0BEF17BB1B389ADE38E6B412E32C"
+    },
+    {
+      "file": "source/ContRevCsvLogger.cs",
+      "sha256": "43E8F86C20FCE35E26FC935189877D877E95C325B51B67EDB6C481289587576E"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "20261023T0113099328754Z_9d070dadc80e4cdd98aaf4aa1cf94f9e",
+      "path_from_project": null,
+      "closed_segments": 542,
+      "gross_realized_pnl": -2182.5,
+      "role": "earlier baseline",
+      "previous_path_from_project": "logs/logging-on/0.1",
+      "availability": "not found after user folder reorganization; historical record retained"
+    },
+    {
+      "run_id": "20261025T1948510645143Z_da023b58acb14391a3d93cbeb2cf8a67",
+      "path_from_project": "logs/logging-on/0.1",
+      "closed_segments": 547,
+      "gross_realized_pnl": -2432.5,
+      "role": "current baseline; 547 logger segments reconciled against Analyzer by simulator validator",
+      "availability": "present"
+    }
+  ],
+  "limitations": [
+    "Version assigned externally; existing run metadata is preserved.",
+    "Source snapshot captures current workspace sources; historical run source hashes were not recorded.",
+    "Matching totals do not constitute full logger-to-Analyzer reconciliation."
+  ]
+}
