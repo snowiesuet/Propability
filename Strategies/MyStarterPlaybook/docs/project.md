@@ -1,14 +1,18 @@
 # FairPriceStrategy — Prop Firm Backtesting Project
 
-Last updated: October 25, 2026 (America/New_York)
+Paths in code examples and data-folder references are relative to `Strategies/MyStarterPlaybook/` unless stated otherwise. Document links resolve from this file.
+
+Last updated: October 26, 2026 (America/New_York)
 Platform: NinjaTrader 8 / C#; simulator: Python 3.10+ (standard library)
-Status: v0.1 input validation and single-evaluation Python replay implemented; broader acceptance and account lifecycle pending
+Status: single-evaluation prototype implemented; 50-purchase FLEX lifecycle selected, research/draft configuration saved, execution specification and implementation pending
 
 ## Objective
 
 Evaluate how the existing FairPriceStrategy performs through repeated prop firm evaluations and funded-account cycles, including failures, fees, drawdown limits, and payouts. The intended outcome is a reproducible estimate of account survival and net profitability across attempts, rather than an assessment based only on Strategy Analyzer profit.
 
-The requirements source is [objective.md](../../objective.md). It calls the strategy **Cont & Rev** and the provider **Lucify**. The implemented strategy class and NinjaTrader display name are `NYOpenFairPriceStrategy`; FairPriceStrategy is the project shorthand. The available dated provider reference is **Lucid Trading / LucidFlex $25K**. Keep these names explicit and confirm the intended provider before treating a simulation configuration as authoritative.
+The user's primary deliverable is a simple [50-account scorecard](../../../docs/plans/SIM_PROP_PLAN.md#primary-goal-and-scorecard): strategy trade win rate, average win/loss, evaluation pass/breach rates, funded accounts, payout dollars, costs, and net cash profit. Use completed-trade results without intrabar requirements. Keep actual counts, unresolved accounts, and metric denominators visible; do not infer repeated-cycle probabilities from the example screenshot.
+
+The requirements source is [objective.md](../../../docs/requirements/objective.md). It calls the strategy **Cont & Rev** and the provider **Lucify**. The implemented strategy class and NinjaTrader display name are `NYOpenFairPriceStrategy`; FairPriceStrategy is the project shorthand. The user has confirmed **Lucid Trading / LucidFlex $25K** for the active study; the earlier PRO screenshot is archived separately. Preserve original naming in historical requirements.
 
 ## Scope and priorities
 
@@ -24,7 +28,7 @@ Prop firm rules, starting account balances, fees, resets, and payout calculation
 
 ## Current strategy baseline
 
-Source: [NYOpenFairPriceStrategy.cs](NYOpenFairPriceStrategy.cs).
+Source: [NYOpenFairPriceStrategy.cs](../NYOpenFairPriceStrategy.cs).
 
 - Fair price is anchored to the configured opening bar's open, defaulting to 9:30 in the configured NinjaTrader time context.
 - Opening-direction continuation uses structure breaks or displacement during the initial window; later entries seek reversion toward fair price.
@@ -41,7 +45,7 @@ The earlier ATRManagerV1 prototype is outside this project's active scope. Its s
 
 | Path | Purpose |
 | --- | --- |
-| `../../objective.md` | Instrumentation requirements and acceptance criteria |
+| `../../../docs/requirements/objective.md` | Instrumentation requirements and acceptance criteria |
 | `roadmap.md` | Progress checklist and remaining milestones |
 | `NYOpenFairPriceStrategy.cs` | Existing continuation/reversion strategy with logging integration |
 | `ContRevCsvLogger.cs` | Independent fill ledger and structured output |
@@ -57,8 +61,8 @@ The instrumentation foundation exists, but objective.md's full acceptance criter
 
 | Requirement | Current state | Remaining work |
 | --- | --- | --- |
-| Execution logging | `executions.csv` records actual fills, identifiers, quantities, prices, position state, and accounting quality | Reconcile a real run against Analyzer, including partial fills and reversals |
-| Completed trade segments | `trades.csv` matches closed entry-fill quantities and allocates known costs | Validate platform totals and document matching differences per run |
+| Execution logging | `executions.csv` records actual fills; the current 1,094-execution unit-fill run reconciles with Analyzer | Complete platform checks for partial fills and reversals |
+| Completed trade segments | `trades.csv` matches closed entry-fill quantities; all 547 current segments reconcile with Analyzer | Validate broader inventory cases and measured costs |
 | Equity observations | `equity.csv` records strategy equity changes at bar closes, executions, and available Last ticks | Map to the requested account snapshot fields in Python; add or derive explicit daily/session reset state |
 | Primary price history | `bars.csv` includes warmup and flat periods | Use OHLC only with documented ordering assumptions or bounds |
 | Order lifecycle | Not implemented; executions do not describe unfilled orders | Add `orders.csv` for submissions, state changes, cancellations, and rejections |
@@ -105,27 +109,28 @@ These are recorded baseline results, not a prop firm pass/fail result. Gross P&L
 
 ## Planned prop firm comparison
 
-Use the dated [LucidFlex reference](../../rules/lucidflex_25k_2026-10-22.md) as an input snapshot, with its unknowns preserved. Do not silently replace it when terms change; create a new dated snapshot.
+Use the dated [LucidFlex reference](../../../rules/lucidflex_25k_2026-10-22.md) as an input snapshot, with its unknowns preserved. Do not silently replace it when terms change; create a new dated snapshot.
 
-Current comparison intent recorded there:
+That snapshot's four-configuration, 1–10 MNQ, $500 monthly budget comparison is historical intent. The active scope is now [the 50-purchase lifecycle study](../../../docs/plans/SIM_PROP_PLAN.md):
 
-- Compare DLL on/off and 40%/50% evaluation consistency: four configurations.
-- Compare MNQ sizing from 1–10 micros per entry.
-- Apply a personal account-purchase budget of at most $500 per month.
+- FLEX $25K, DLL ON at $600, 50% evaluation consistency, no funded consistency, five $100 profit days, and free activation.
+- One MNQ per account; $43.20 per evaluation ($2,160 for 50), no monthly budget constraint, and no automatic resets.
+- Fifty sequential purchased evaluations, one active at a time, with funded accounts continuing independently subject to five-funded/ten-total limits. Resolve passed-evaluation waiting when funded slots are full.
+- Payouts, fees, and cash ledger belong in the first release. Count modeled bank receipts minus external cash costs, not remaining balances or pending payouts.
 - For replay of the existing gross logs, use the reference assumption of $0.50 per filled MNQ contract per side, without double-counting any logged costs.
 
 The simulator should model repeated evaluation attempts, pass/fail outcomes, funded progression, daily loss locks, static/trailing drawdown, consistency, qualifying days, payout eligibility, withdrawals, fees, profit splits, and account breaches.
 
-Before authoritative comparisons, resolve provider identity, actual checkout costs, DLL amount and calculation basis, consistency cushion/rounding, intraday drawdown enforcement, reset/calendar rules, evaluation-to-funded transitions, and payout timing. Budget carryover, repurchases, parallel accounts, and reinvestment also need explicit simulation policies. Unresolved inputs must be reported as unknowns or named scenarios.
+The [October 26 research](../../../rules/lucidflex_25k_research_2026-10-26.md), [selected screenshots](../../../rules/user_supplied_25k_flex_2026-10-26.md), and [draft JSON](../../../rules/lucidflex_25k_dll_on_50pct_study_draft.json) capture confirmed values and gaps. The draft is not executable. Resolve remaining completed-trade DLL/floor mechanics, cushion/rounding, qualifying-day accounting, calendars, payouts, funded-slot handling, live review, start date, and withdrawal policy. The user approved ignoring intrabar data: use realized net results after completed trades and session-end trailing floors, with a brief disclosure about open-trade limit touches.
 
 ## Next milestones
 
-1. **Validate the existing NinjaTrader integration.** Compile both source files in NinjaTrader, then compare the original baseline, logging disabled, and logging enabled with identical data and settings. Check fills, timestamps, quantities, inventory, and results, including layering, session closes, and partial fills where available.
-2. **Close the instrumentation gaps.** Add order lifecycle output, explicit session summaries/reset state, the documented account-equity mapping, and a metadata requirements audit while preserving trading behavior.
-3. **Produce a reconciled baseline.** Generate a commission-aware run and a per-run report comparing Analyzer totals, execution/trade accounting, fees, daily totals, counts, and ending inventory. Flag discrepancies rather than adjusting them away.
-4. **Define simulator configuration.** Resolve the provider/rule inputs and account lifecycle policies; separate verified rules from scenario assumptions.
-5. **Implement Python replay.** Start with deterministic accounting and one configured account lifecycle, then add repeated attempts, budget constraints, sizing comparisons, and payout cycles.
-6. **Report outcomes and uncertainty.** Compare pass rates across replay start dates, breach reasons, time to pass/payout, attempt costs, payouts received, and net cash results. Distinguish historical replay outcomes from forecasts and label intrabar uncertainty.
+1. **Finish the execution specification — next milestone.** Follow the [current action sequence](../../../docs/plans/SIM_PROP_PLAN.md#current-status-and-next-step): resolve remaining completed-trade mechanics, obtain start date and withdrawal policy, and define funded-slot/live-review handling. The user approved checking realized losses after closed trades and updating the floor at session end. Intrabar data and liquidation reconstruction are deferred, not prerequisites. Research artifacts are saved; other Phase 1 decisions remain open.
+2. **Complete platform acceptance alongside replay development.** Compilation and the inspected 547-trade layering-disabled ON/OFF comparison passed. Retain logging-ON settings, restore the OFF individual Trades archive, and finish original-baseline, layering, session-close, partial-fill, and other edge-case checks.
+3. **Close instrumentation and baseline gaps.** Add order lifecycle output, explicit session summaries/reset state, the documented account-equity mapping, and a metadata audit while preserving trading behavior. Gross accounting already reconciles; measured commissions and cost-bearing platform validation remain open.
+4. **Build the independent account engine.** Separate ingestion, rules, and evaluation/funded state; preserve existing replay results and verify manually reconciled accounting fixtures.
+5. **Implement the 50-purchase lifecycle, payouts, and cash ledger.** Include funded concurrency, activation rebasing, costs, settlement events, and account limits without defaulting unresolved rules.
+6. **Validate reports and historical results.** Reconcile traces and receipts/costs, preserve provenance, and report incomplete or uncertain outcomes. No 50-attempt study has run. Start-date batches, sizing/options, and budget controls are later milestones; overlapping histories are not independent probability trials.
 
 ## Validation and completion criteria
 
@@ -145,8 +150,8 @@ The broader project is complete when a separate configurable Python simulator ca
 
 ## Python prototype — October 25 update
 
-[simulator/README.md](simulator/README.md) documents the CLI, supported inputs, assumptions, and outputs. The current 547-trade run reconciles to Analyzer gross results. Full-run fixed commissions of $547 produce modeled net P&L of -$2,979.50; these costs are an assumption, not measured platform commissions.
+[simulator/README.md](../simulator/README.md) documents the CLI, supported inputs, assumptions, and outputs. The current 547-trade run reconciles to Analyzer gross results. Full-run fixed commissions of $547 produce modeled net P&L of -$2,979.50; these costs are an assumption, not measured platform commissions.
 
 The one-contract DLL-off/strict-40% scenario reports an observed equity breach on January 21, 2026 at 10:16 Eastern: $24,265.50 equity versus a $24,266.00 floor. Missing intrabar observations may hide an earlier breach. No liquidation or purchase fee is invented. This is one attempt from the input start, not a pass-rate estimate.
 
-Results: [first validated replay](simulation-results/v0.1/20261025T202249Z_3fbf4a08/report.md). Reports record input/configuration/rule/code hashes and the source run ID. Thirteen tests cover reconciliation, corrupted inputs, cost accounting, and replay boundaries. Original logs and strategy sources were not changed. Remaining platform acceptance, expanded logging, authoritative rules, funded accounts, payouts, and repeated attempts remain open.
+Results: [first validated replay](../simulation-results/v0.1/20261025T202249Z_3fbf4a08/report.md). Reports record input/configuration/rule/code hashes and the source run ID. Thirteen tests cover reconciliation, corrupted inputs, cost accounting, and replay boundaries. Original logs and strategy sources were not changed. Remaining platform acceptance, expanded logging, authoritative rules, funded accounts, payouts, and repeated attempts remain open.

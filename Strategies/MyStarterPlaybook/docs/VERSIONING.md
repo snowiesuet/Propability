@@ -1,5 +1,7 @@
 # Strategy versions and backtest runs
 
+Paths in code examples and data-folder references are relative to `Strategies/MyStarterPlaybook/` unless stated otherwise. Document links resolve from this file.
+
 The first FairPriceStrategy iteration is **v0.1**. Strategy versions and backtest runs are separate: changing a date range or rerunning Analyzer does not create a new strategy iteration.
 
 - Preserve a source snapshot and manifest under `versions/v0.1/`.

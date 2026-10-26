@@ -1,0 +1,163 @@
+{
+  "schema": "propability.study-research-draft.v1",
+  "status": "research_draft_not_executable",
+  "checked_date": "2026-10-26",
+  "scenario_id": "lucidflex_25k_dll_on_50pct_50purchases",
+  "currency": "USD",
+  "research_reference": "lucidflex_25k_research_2026-10-26.md",
+  "screenshot_reference": "user_supplied_25k_flex_2026-10-26.md",
+  "sources": {
+    "drawdown": "https://support.lucidtrading.com/en/articles/12945815-lucidflex-drawdown",
+    "customization": "https://support.lucidtrading.com/en/articles/16226050-lucidflex-customization",
+    "consistency": "https://support.lucidtrading.com/en/articles/12945805-lucidflex-consistency-percentage",
+    "payouts": "https://support.lucidtrading.com/en/articles/12945796-lucidflex-payouts",
+    "scaling": "https://support.lucidtrading.com/en/articles/12945808-lucidflex-scaling-plan",
+    "account_limits": "https://support.lucidtrading.com/en/articles/11404617-maximum-number-of-accounts",
+    "live": "https://support.lucidtrading.com/en/articles/16558826-new-live-structure",
+    "hours": "https://support.lucidtrading.com/en/articles/11404729-allowed-trading-times",
+    "commissions": "https://support.lucidtrading.com/en/articles/11508978-approved-products-and-commissions",
+    "evaluation": "https://support.lucidtrading.com/en/articles/12945790-lucidflex-evaluation-account"
+  },
+  "user_policy": {
+    "purchased_attempts_target": 50,
+    "max_active_evaluations": 1,
+    "replacement_start": "next_eligible_session",
+    "funded_start": "next_eligible_session_subject_to_account_limit",
+    "contracts_per_account": 1,
+    "instrument": "MNQ",
+    "purchase_fee": "43.20",
+    "purchase_fee_basis": "user_confirmed_fixed_study_price",
+    "evaluation_fees_if_50_purchased": "2160.00",
+    "use_resets": false,
+    "monthly_budget_enforced": false,
+    "withdrawal_timing": null,
+    "withdrawal_amount": null,
+    "start_date": null,
+    "funded_slot_waiting_policy": null,
+    "live_transition_policy": null,
+    "results_model": "completed_trades_only",
+    "intrabar_data_required": false,
+    "loss_check_timing": "after_each_completed_trade",
+    "drawdown_update_timing": "session_end",
+    "dll_lockout_model": "skip_subsequent_trades_for_account_until_next_session",
+    "open_trade_limit_touches_modeled": false
+  },
+  "evaluation": {
+    "starting_balance": "25000",
+    "profit_target": "1250",
+    "consistency_limit": "0.50",
+    "consistency_formula": "largest_profitable_day_divided_by_total_account_profit",
+    "consistency_cushion_formula": null,
+    "consistency_rounding": null,
+    "consistency_day_accounting_basis": null,
+    "max_micros": 20
+  },
+  "funded": {
+    "starting_balance": null,
+    "starting_balance_requires_agreement_confirmation": true,
+    "consistency_required": false,
+    "activation_fee": "0",
+    "qualifying_days_per_cycle": 5,
+    "qualifying_day_profit_minimum": "100",
+    "qualifying_day_accounting_basis": null,
+    "positive_cycle_profit_required": true,
+    "qualifying_day_reset_event": "payout_approval",
+    "cycle_accounting_reset_mechanics": null,
+    "max_payouts": 5,
+    "micro_scaling_tiers": [
+      {
+        "profit_minimum": "0",
+        "max_micros": 10
+      },
+      {
+        "profit_minimum": "1000",
+        "max_micros": 20
+      }
+    ],
+    "scaling_update": "session_end",
+    "negative_profit_scaling": null
+  },
+  "shared_drawdown": {
+    "stages": [
+      "evaluation",
+      "funded"
+    ],
+    "type": "end_of_day_trailing",
+    "distance": "1000",
+    "evaluation_initial_floor_derived": "24000",
+    "initial_trail_balance": "26100",
+    "locked_floor": "25100",
+    "payout_request_locks_floor": true,
+    "touch_breaches": true,
+    "intraday_enforcement_basis": null,
+    "commission_basis": null,
+    "trail_lock_equality_and_rounding": null,
+    "payout_floor_update_order": null,
+    "study_enforcement_basis": "realized_net_balance_after_completed_trade"
+  },
+  "daily_loss_limit": {
+    "enabled": true,
+    "amount": "600",
+    "amount_source": "user_confirmed_screenshots",
+    "stages": [
+      "evaluation",
+      "funded"
+    ],
+    "effect": "soft_lockout_until_next_session",
+    "accounting_basis": null,
+    "reset_mechanics": null,
+    "liquidation_mechanics": null,
+    "funded_above_initial_trail_behavior": null,
+    "study_accounting_basis": "session_realized_net_pnl_after_completed_trade",
+    "liquidation_required_for_study": false
+  },
+  "payout": {
+    "request_minimum": "500",
+    "request_profit_fraction_maximum": "0.50",
+    "request_dollar_maximum": "1000",
+    "cap_basis_interpretation": "profit_per_official_table_prose_says_balance",
+    "trader_fraction": "0.90",
+    "separate_buffer_required": false,
+    "requests_final": true,
+    "on_demand_available": true,
+    "on_demand_window_et": [
+      "18:00",
+      "15:45"
+    ],
+    "intraday_request_pauses_trading_until_day_end": true,
+    "account_deduction_after_approval": "within_minutes",
+    "payment_method_disbursement_after_approval_business_days_max": 2,
+    "approval_delay": null,
+    "bank_receipt_delay": null,
+    "processing_fees": null,
+    "pending_payout_after_breach": null
+  },
+  "account_limits": {
+    "max_funded_per_household": 5,
+    "max_evaluations_per_household": 10,
+    "max_combined_eval_and_funded_per_household": 10
+  },
+  "trading_costs": {
+    "mnq_commission_per_contract_per_side": "0.50",
+    "reset_fee_reference_only": "50",
+    "other_external_costs": null
+  },
+  "calendar": {
+    "published_close_time_est": "16:45",
+    "published_reopen_time_est": "18:00",
+    "seasonal_timezone_interpretation": null,
+    "holiday_calendar": null,
+    "cutoff_liquidation_is_automatic_account_failure": false
+  },
+  "strict_execution_blockers": [
+    "Unresolved DLL session reset/above-trail behavior, floor locking, and rounding mechanics",
+    "Unpublished general 50-percent consistency cushion",
+    "Unresolved qualifying-day and payout-cycle accounting",
+    "Unresolved withdrawal policy, approval, actual bank receipt, pending payments, and extra costs",
+    "Unresolved funded capital confirmation, funded-slot waiting, and discretionary live transition",
+    "Unselected start date and incomplete calendar/timezone interpretation"
+  ],
+  "model_limitations": [
+    "Completed-trade model approved by the user; open-trade loss-limit touches and intrabar liquidation are excluded. This does not block this study."
+  ]
+}

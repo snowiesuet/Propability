@@ -1,6 +1,60 @@
 # v0.1 evaluation replay
 
+## Incremental account engine
+
+Increment 3 adds explicit `evaluation`/`funded` account types and `eod_trailing` policy. The floor updates only at an observed close using `max(old_floor, min(floor_cap, highest_completed_balance - trailing_distance))`. It uses the final session balance, not the intraday peak. Evaluation passing requires positive profit meeting the target and strict consistency `best_winning_day <= consistency_limit * total_net_profit`, checked only at close. Funded accounts have no evaluation target/consistency and count completed days meeting the explicit net-profit threshold. Qualifying days alone do not establish payout eligibility.
+
+`finish_data()` seals further input, is idempotent, preserves passed/breached outcomes, and reports active accounts as unfinished without closing an unobserved final session. Snapshots expose the current floor, highest completed balance, best completed winning day, qualifying-day count, and data-end outcome. Unsupported policies and missing stage/trailing settings are rejected. The fixed-floor development API remains available for earlier examples.
+
+See synthetic evaluation passing, funded qualifying days, and an unfinished final session:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/demo_session_rules.py
+```
+
+All **46 tests pass**: nine accounting, 12 loss-limit, 12 session-rule, and 13 legacy replay tests. Next is the validated historical adapter. The strict consistency and EOD floor formula are explicit development policies; provider nuances remain unresolved, and the full research draft remains non-executable. No historical account-engine run or payout study has been performed.
+
+Increment 2 adds immutable `AccountRules`/`SessionClose` and `AccountEngine`. Explicit development rules select starting capital, a **fixed** loss floor, and an optional net-session DLL. Equality at the floor breaches, with hard breach taking priority over DLL. Equality at minus the DLL locks that account; later trades are skipped without P&L or commissions. Only an observed close followed by a new session resets the lock. Breached accounts cannot be revived. No-trade sessions can close explicitly; duplicate/closed-session and out-of-order input is rejected. Audit events include account ID, timestamp, and source order.
+
+For visible loss-limit transitions, run from the repository root:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/demo_loss_limits.py
+```
+
+This synthetic demo shows DLL lockout, a skipped profit, next-session recovery, and permanent breach using the fixed-floor policy. Use the session-rule demo above for EOD trailing/evaluation behavior.
+
+`account_engine.py` contains the first tested increment: `CompletedTrade`, `AccountLedger`, and immutable `TradeApplied` accounting events. Inputs use timezone-aware datetimes, explicit session IDs/source order, one-contract trades, and finite Decimal gross P&L/commissions. The caller must establish flat-to-flat inventory. Snapshots are JSON-serializable; money and ratios are decimal strings, with unavailable ratios represented by `null`.
+
+The ledger starts each account at its supplied capital, deducts each trade's commission once, and tracks net wins/losses, session totals, and closed-trade balance drawdown. It rejects duplicates, overlapping positions, and out-of-order input before mutating state. The standalone ledger includes every supplied trade; `AccountEngine` decides which trades to apply. See the [delivery checkpoints](../../../docs/plans/ACCOUNT_ENGINE_PLAN.md#incremental-delivery-checkpoints).
+
+Accounting checkpoint: net trades `+100, -50, 0, +150` from gross `+101, -49, +1, +151`, each with $1 commission, turn $25,000 into $25,200. Average win is $125, average loss is -$50, win rate is 50% including the breakeven trade, and maximum closed-trade drawdown is $50.
+
+For a readable trade-by-trade demonstration with synthetic inputs, run from the repository root:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/demo_accounting.py
+```
+
+This prints each trade's gross P&L, commission, net P&L, and resulting balance, then the final statistics and a duplicate-trade rejection. It uses the actual ledger and writes no files. These are sample trades, not historical strategy performance.
+
+For automated accounting checks, run:
+
+```powershell
+python -m unittest discover -s Strategies/MyStarterPlaybook/simulator/tests -p test_account_engine.py -v
+```
+
+The existing replay commands below retain their original behavior.
+
 Python 3.10+; standard library only. This prototype validates the first strategy iteration and replays one evaluation attempt from the beginning of a selected run. NinjaScript and original exports are left unchanged.
+
+## Planned lifecycle study — October 26, 2026
+
+The active target is the [50-purchase FLEX lifecycle plan](../../../docs/plans/SIM_PROP_PLAN.md): DLL ON at $600, 50% evaluation consistency, $43.20 purchases, funded accounts, payouts, and net cash accounting. See [next steps](../../../docs/plans/SIM_PROP_PLAN.md#current-status-and-next-step) for the remaining execution specification.
+
+Runnable commands below still describe the existing DLL-off/40% single-evaluation prototype. The study CLI is not implemented. Its [research draft](../../../rules/lucidflex_25k_dll_on_50pct_study_draft.json) cannot be passed to `--config`. Independent start-date batches are deferred.
+
+The user approved a simpler model for the planned study: use completed-trade net results, check loss limits after each closed trade, and update the trailing floor at session end. Intrabar/tick data is not required. Reports will note that open-trade limit touches are excluded. This does not change the existing prototype's observation-based behavior below.
 
 From the repository root:
 

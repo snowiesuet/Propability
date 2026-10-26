@@ -2,7 +2,7 @@
 
 Strategy version: **1**. Reviewed: October 25, 2026. This describes the current implementation, not a proposed strategy change.
 
-Source: [NYOpenFairPriceStrategy.cs](Strategies/MyStarterPlaybook/NYOpenFairPriceStrategy.cs). NinjaTrader class/display name: `NYOpenFairPriceStrategy`. Project shorthand: FairPriceStrategy.
+Source: [NYOpenFairPriceStrategy.cs](../Strategies/MyStarterPlaybook/NYOpenFairPriceStrategy.cs). NinjaTrader class/display name: `NYOpenFairPriceStrategy`. Project shorthand: FairPriceStrategy.
 
 ## Core idea
 
@@ -113,13 +113,13 @@ There is no explicit trailing stop, breakeven adjustment, time-based trade exit,
 
 The opening/signal defaults are: `OpenHour = 9`, `OpenMinute = 30`, `ContinuationMinutes = 15`, `ReversionMinutes = 90`, `ConfirmationBars = 3`, `StructureLookback = 5`, `DisplacementMultiplier = 1.20`, `MaxWickPercent = 20`, `MinDistanceFromFair = 10`, and `DisplacementOverrideDistance = 38`.
 
-The saved [run metadata](Strategies/MyStarterPlaybook/logs/logging-on/0.1/run_metadata.json) uses these defaults, fixed-point reversion targets, four maximum submissions, and layering disabled. It records MNQ one-minute bars, `CME US Index Futures ETH`, standard historical fill resolution, zero configured slippage, commissions excluded in Analyzer, and unknown logger commissions. These are saved-run settings; they do not establish the settings currently selected in the NinjaTrader UI.
+The saved [run metadata](../Strategies/MyStarterPlaybook/logs/logging-on/0.1/run_metadata.json) uses these defaults, fixed-point reversion targets, four maximum submissions, and layering disabled. It records MNQ one-minute bars, `CME US Index Futures ETH`, standard historical fill resolution, zero configured slippage, commissions excluded in Analyzer, and unknown logger commissions. These are saved-run settings; they do not establish the settings currently selected in the NinjaTrader UI.
 
-Debug visuals are enabled by default. CSV logging is disabled by default but enabled in that saved run. Logging records observations and executions; it does not define trading signals. See [LOGGING.md](Strategies/MyStarterPlaybook/LOGGING.md) for schemas and accounting limits.
+Debug visuals are enabled by default. CSV logging is disabled by default but enabled in that saved run. Logging records observations and executions; it does not define trading signals. See [LOGGING.md](../Strategies/MyStarterPlaybook/docs/LOGGING.md) for schemas and accounting limits.
 
 ## Implementation limits to retain when interpreting results
 
 - Opening state resets on the matching clock bar, not on a general session-start event. There is no guard confirming a fresh opening reference for the current date if the matching bar is absent or skipped during warmup.
 - Bar-close signals do not imply fills at the signal close. Actual fills depend on NinjaTrader's execution/fill settings.
 - Historical bar-close data cannot establish the order of every intrabar stop, target, or prop firm drawdown event. The saved run has no historical Last-tick observations.
-- This document describes behavior; it does not establish profitability or prop firm eligibility. Provider rules and the future simulator remain separate; see [project.md](Strategies/MyStarterPlaybook/project.md) and the dated [LucidFlex reference](rules/lucidflex_25k_2026-10-22.md).
+- This document describes behavior; it does not establish profitability or prop firm eligibility. Provider rules and the future simulator remain separate; see [project.md](../Strategies/MyStarterPlaybook/docs/project.md) and the dated [LucidFlex reference](../rules/lucidflex_25k_2026-10-22.md).

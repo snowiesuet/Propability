@@ -1,5 +1,7 @@
 # Cont & Rev CSV logging
 
+Paths in code examples and data-folder references are relative to `Strategies/MyStarterPlaybook/` unless stated otherwise. Document links resolve from this file.
+
 Copy **both** `NYOpenFairPriceStrategy.cs` and `ContRevCsvLogger.cs` into the NinjaTrader 8 custom Strategies directory, then compile in the NinjaScript Editor. Do not copy the `tests` directory. The strategy's class and displayed name remain `NYOpenFairPriceStrategy`.
 
 Enable **CSV Logging → Enable CSV Logging** in the strategy parameters. The default is disabled. A blank output root uses `NinjaTrader.Core.Globals.UserDataDir/ContRevBacktestLogs`. Every instance/optimization iteration gets its own timestamp-and-GUID run directory. Logging starts on the first primary-bar callback, before all original trading/warmup guards, and finalizes in Terminated. Initialization waits for strategy Position to be available instead of reading it in DataLoaded. No-bar runs produce no files. Files remain buffered until the next primary bar or termination. Performance overhead can affect live timing even though no trading calculations or order calls were changed.
