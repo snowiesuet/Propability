@@ -7,3 +7,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+
+# NinjaScript test artifacts and operating-system metadata.
+Strategies/MyStarterPlaybook/tests/.artifacts/
+.DS_Store
+Thumbs.db
