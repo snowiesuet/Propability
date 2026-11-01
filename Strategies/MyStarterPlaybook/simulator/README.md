@@ -12,7 +12,41 @@ See synthetic evaluation passing, funded qualifying days, and an unfinished fina
 python Strategies/MyStarterPlaybook/simulator/demo_session_rules.py
 ```
 
-All **46 tests pass**: nine accounting, 12 loss-limit, 12 session-rule, and 13 legacy replay tests. Next is the validated historical adapter. The strict consistency and EOD floor formula are explicit development policies; provider nuances remain unresolved, and the full research draft remains non-executable. No historical account-engine run or payout study has been performed.
+The validated historical adapter is available as a single-evaluation quick test. From the repository root:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/account_study.py
+```
+
+It fully validates the saved 547-trade run, converts supported flat-to-flat trades with the assumed $1 round-trip commission, derives only observed session closes, and replays one evaluation using the explicit $600 DLL / strict 50% development assumptions. Results and input hashes are written to a new folder under `Strategies/MyStarterPlaybook/simulation-results/account-engine/`. The baseline replay breached after 42 applied trades on January 21, 2026; the remaining 505 trades were terminal-ignored. This is one historical attempt, not a pass-rate estimate. The legacy replay is also run and its separate result is retained in the JSON. Intratrade loss touches are excluded, and the final session is not force-closed. Provider nuances remain unresolved; no lifecycle or payout study has been performed.
+
+The strict consistency and EOD floor formula are explicit development policies. The validation config remains DLL-off/40% because it validates source data and preserves the existing legacy replay; the account study applies its own separately stated quick-test rules.
+
+To estimate how many sequential evaluations pass across the whole historical stream, run:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/account_cohort.py
+```
+
+This quick cohort starts a fresh evaluation at the next source event after the previous evaluation passes or breaches, up to 50 attempts by default. On the saved 547-trade run, 2 passed, 7 breached, and 1 was unfinished. All 547 trades were consumed. This is not a pass-rate estimate: attempts consume non-overlapping portions of the run, funded accounts do not continue trading alongside later evaluations, and fees/payouts are omitted. Detailed per-account results and source hashes are saved to a new folder under `Strategies/MyStarterPlaybook/simulation-results/account-cohort/`.
+
+To inspect each source event and validate account accounting, run:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/debug_account_cohort.py
+```
+
+This repeats the cohort replay, writes `events.csv` with before/after balance, session P&L, loss floor, DLL lock, status, and emitted engine decision for every trade or session close, and writes `validation.json` with reconciliation checks. On the baseline it matched the cohort's per-account outcomes and balances exactly. Output is saved under `Strategies/MyStarterPlaybook/simulation-results/account-cohort-debug/`.
+
+Both evaluation runners and the debug runner accept an optional inclusive session-date window:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/account_cohort.py --start-date 2026-04-01 --end-date 2026-06-30
+python Strategies/MyStarterPlaybook/simulator/debug_account_cohort.py --start-date 2026-04-01 --end-date 2026-06-30
+python Strategies/MyStarterPlaybook/simulator/account_study.py --start-date 2026-04-01 --end-date 2026-06-30
+```
+
+Dates use the strategy's session date (the configured Eastern session reset), with both endpoints included. Omit either bound to leave that side open. The source run is still fully validated; only events in the selected period are fed to the account(s). The sample April 1–June 30, 2026 cohort contains 176 trades across 63 sessions and yielded 0 passes, 2 breaches, and 1 unfinished evaluation. The debug and cohort outputs agree.
 
 Increment 2 adds immutable `AccountRules`/`SessionClose` and `AccountEngine`. Explicit development rules select starting capital, a **fixed** loss floor, and an optional net-session DLL. Equality at the floor breaches, with hard breach taking priority over DLL. Equality at minus the DLL locks that account; later trades are skipped without P&L or commissions. Only an observed close followed by a new session resets the lock. Breached accounts cannot be revived. No-trade sessions can close explicitly; duplicate/closed-session and out-of-order input is rejected. Audit events include account ID, timestamp, and source order.
 

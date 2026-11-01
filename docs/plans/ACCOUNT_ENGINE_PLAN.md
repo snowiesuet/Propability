@@ -1,13 +1,13 @@
 # Account Engine — Implementation Plan
 
-Status: increments 1–3 implemented and tested (October 26, 2026). Historical integration and the 50-account study remain later milestones.
+Status: increments 1–4 implemented; the validated baseline single-evaluation quick test completed October 31, 2026. The 50-account study remains a later milestone.
 
 ## Incremental delivery checkpoints
 
 1. **Complete — accounting foundation.** `AccountLedger` and immutable `CompletedTrade` inputs in `Strategies/MyStarterPlaybook/simulator/account_engine.py`. Decimal accounting, commissions deducted once, net trade statistics, session P&L totals, closed-trade drawdown, audit events, independent activation, and input ordering checks. Nine new tests and all 13 legacy replay tests pass. Trading-body integrity checks also pass.
 2. **Complete — loss limits.** Explicit immutable `AccountRules`, `AccountEngine`, and `SessionClose`; fixed-floor breach checks, net-session DLL equality/skip behavior, terminal protection, and observed session closure/reset. Twelve additional hand-calculated tests pass, for 21 account tests plus all 13 legacy replay tests. Run `demo_loss_limits.py` under the simulator directory for visible synthetic examples.
 3. **Complete — session-end rules.** Explicit EOD trailing distance/cap, evaluation target/strict consistency, funded qualifying days, and idempotent data-end sealing. Twelve additional tests cover EOD-only/final-balance ratcheting, nondecreasing/capped floors, equality breaches, delayed/equality passing, loss-day consistency, empty/losing/qualifying days, terminal protection, and unclosed final sessions. All 33 account tests plus 13 legacy replay tests pass. Run `demo_session_rules.py` for visible synthetic examples.
-4. **Next — validated historical adapter.** Prove flat-to-flat input, derive observed session closes, and reconcile both account types on the saved baseline, including skipped trades and unchanged legacy replay behavior.
+4. **Complete — validated historical adapter and one-account quick test.** `account_adapter.py` validates the saved baseline before adapting it, proves consecutive flat-to-flat execution pairs, derives observed session closes, reconciles every source trade as applied/skipped/ignored, checks source hashes, and retains the unchanged legacy replay result. `account_study.py` runs the provisional one-evaluation case. On the saved 547-trade baseline it applied 42 trades, breached at $24,208 on January 21, 2026, skipped 0 trades through DLL lockout, and terminal-ignored the remaining 505. The legacy sampled replay independently breached at $24,308.50 observed equity. This is one path through one historical run, not a pass-rate estimate. Output is saved under `Strategies/MyStarterPlaybook/simulation-results/account-engine/`.
 
 The standalone ledger includes every supplied trade. The engine supports explicit fixed/EOD trailing policies, net-session DLL, evaluation passing, and funded qualifying-day counts. EOD policy is `max(old_floor, min(cap, highest_completed_balance - trailing_distance))`; evaluation consistency is strict `best_winning_day <= consistency_limit * total_net_profit`. These are development-model policies, not resolution of outstanding provider nuances. The research draft remains non-executable. No study CLI, payout eligibility, or historical account-engine result is available yet. `finish_data()` leaves active accounts unfinished, preserves terminal outcomes, and never fabricates a final session close.
 
@@ -62,7 +62,7 @@ Add a completed-trade adapter using the existing validated run and session-day f
 - Label strict 50%, net daily accounting, and the precise floor formula as development-model policies. They do not resolve the provider's unpublished cushion, trail-threshold nuances, or DLL above-trail mechanics. Keep the full research draft non-executable; do not silently turn unknown provider fields into defaults.
 - Permit rule variation through explicit constructor/config inputs. Reject unsupported consistency modes or missing required engine values. Payout timing, live review, funded-slot handling, and the user's study start date do not block this independent engine.
 
-No new public CLI is required in this step. Exercise real-data ingestion through an integration test/helper; publish a study command only when the coordinator is implemented.
+The standalone `account_study.py` command provides the real-data integration path for one provisional evaluation. Its validation config is kept separate from account rules so the legacy DLL-off/40% replay behavior remains unchanged. Do not treat its result as a study estimate or provider-rule conclusion.
 
 ## 4. Tests and acceptance
 
