@@ -52,6 +52,7 @@ class CompletedTrade:
     quantity: int
     gross_pnl: Decimal
     commission: Decimal
+    entry_signal: str | None = None
 
     def __post_init__(self) -> None:
         _identifier(self.trade_id, "trade_id")

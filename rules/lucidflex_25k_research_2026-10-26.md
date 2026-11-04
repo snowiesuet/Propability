@@ -1,10 +1,18 @@
 # LucidFlex $25K — official-rule research
 
-Checked: October 26, 2026 (America/New_York). This dated research supplements the user's FLEX screenshots and preserves the October 22 reference unchanged. It is not a complete account agreement or an executable rulebook.
+Originally checked: October 26, 2026 (America/New_York); official pages rechecked: November 2, 2026. This dated research supplements the user's FLEX screenshots and preserves the October 22 reference unchanged. It is not a complete account agreement or an executable rulebook.
 
 Selected study: 50 sequential purchases, $43.20 each, DLL ON ($600 from the screenshot), 50% evaluation consistency, one MNQ per account, free funded activation, no resets. Price is a user-selected fixed study input, not a promise of future coupon availability. PRO remains separate.
 
 ## Findings by source
+
+### November 2 official-page recheck
+
+The current FLEX consistency page confirms the calculation as largest single-day profit divided by account profit. It publishes a $650 example at a $1,250 target for the 50% add-on, but says the cushion varies with actual profit; no general equation or rounding rule is published. The project's strict 50% engine rule remains a conservative modeling policy, not an exact reproduction of the cushion. [Official consistency article](https://support.lucidtrading.com/en/articles/12945805-lucidflex-consistency-percentage)
+
+The current payout article still has a prose/table mismatch: prose says 50% of account balance, while the $25K table says 50% of profit up to $1,000. Its five separate $100 days, positive cycle-profit rule, $500 minimum, 90/10 split, and five-payout maximum remain as researched. It says funds reach the trader's payment method within two business days after approval; the user-selected study deliberately models no approval or settlement delay. No payout processing-fee schedule was found in the reviewed payout/method pages. [Official payout article](https://support.lucidtrading.com/en/articles/12945796-lucidflex-payouts)
+
+The current drawdown page confirms EOD highest-closing-balance trailing and the $25K $26,100 trail / $25,100 locked floor. It states the floor locks once the account exceeds the trail and moves to the locked floor on payout request. It does not establish request/deduction ordering or equality rounding. [Official drawdown article](https://support.lucidtrading.com/en/articles/12945815-lucidflex-drawdown)
 
 ### Drawdown
 
@@ -58,13 +66,15 @@ The evaluation article confirms the $1,250 target and free activation and descri
 
 ## Execution gaps and next work
 
+**User-selected study policies (November 2, 2026):** start on January 1, 2026, the earliest observed session in the validated source. For funded accounts, request the maximum permitted payout at the first eligible time the account is flat. Use 50% of current payout-cycle net profit as the cap basis, capped at $1,000 with a $500 minimum; the payout page's prose/table conflict remains documented. Model approval and receipt immediately at the request timestamp and ignore payout processing, settlement, and post-request trading pauses. The five qualifying-day eligibility requirement remains. Lock the loss floor at $25,100 on request, deduct the gross requested amount, credit 90% immediately, and treat a post-deduction balance at or below the floor as a breach. This ordering is a study policy, not a confirmed provider sequence. Payout/receipt fees remain unknown.
+
 **Subsequent user decision:** intrabar data is deferred. The active study uses completed-trade net results, loss checks after each closed trade, and session-end floor updates. Intrabar/liquidation reconstruction is not a prerequisite. Item 6 below describes the stricter model's data limitation, not a blocker for the approved completed-trade study. Official ambiguities remain documented separately from this chosen simulation model.
 
 1. Obtain provider clarification for DLL accounting/liquidation, funded above-trail behavior, intraday MLL enforcement, lock-boundary rounding, and 50% consistency cushion.
 2. Resolve net-of-fees qualifying days, payout processing/order, fees, and actual bank settlement assumptions.
-3. Choose withdrawal timing/amount before replay; on-demand availability does not require immediate withdrawal.
+3. **Resolved by user policy:** request the maximum payout at the first eligible time while flat, with zero modeled approval/settlement delay; payout/receipt fees and deduction/floor ordering still require resolution or explicit modeling assumptions.
 4. Resolve funded-slot waiting and discretionary live-transition policy. Strict mode must not exceed five funded accounts.
-5. Select the start date and session/holiday calendar. Confirm fresh funded capital and actual reset mechanics from the applicable agreement.
+5. **Start date selected:** January 1, 2026. Confirm fresh funded capital, actual reset mechanics, and session/holiday calendar interpretation from the applicable agreement or label assumptions explicitly.
 6. Address data limitations: current historical bar-close/fill observations lack tick coverage. DLL liquidation can change later inventory and P&L, so simply skipping trades after a DLL touch cannot establish an exact replay. Require executable liquidation observations or explicitly qualify the approximation.
 
 The accompanying JSON is a research draft, not compatible with the existing single-evaluation loader. Unknown mechanics stay null; strict execution must reject unresolved inputs. No simulator behavior or historical source data was changed by this research.

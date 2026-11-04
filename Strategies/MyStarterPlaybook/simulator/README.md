@@ -18,7 +18,7 @@ The validated historical adapter is available as a single-evaluation quick test.
 python Strategies/MyStarterPlaybook/simulator/account_study.py
 ```
 
-It fully validates the saved 547-trade run, converts supported flat-to-flat trades with the assumed $1 round-trip commission, derives only observed session closes, and replays one evaluation using the explicit $600 DLL / strict 50% development assumptions. Results and input hashes are written to a new folder under `Strategies/MyStarterPlaybook/simulation-results/account-engine/`. The baseline replay breached after 42 applied trades on January 21, 2026; the remaining 505 trades were terminal-ignored. This is one historical attempt, not a pass-rate estimate. The legacy replay is also run and its separate result is retained in the JSON. Intratrade loss touches are excluded, and the final session is not force-closed. Provider nuances remain unresolved; no lifecycle or payout study has been performed.
+It fully validates the saved 547-trade run, converts supported flat-to-flat trades with the assumed $1 round-trip commission, derives only observed session closes, and replays one evaluation using the explicit $600 DLL / strict 50% development assumptions. Results and input hashes are written to a new folder under `Strategies/MyStarterPlaybook/simulation-results/account-engine/`. The baseline replay breached after 42 applied trades on January 21, 2026; the remaining 505 trades were terminal-ignored. This is one historical attempt, not a pass-rate estimate. The legacy replay is also run and its separate result is retained in the JSON. Intratrade loss touches are excluded, and the final session is not force-closed. Provider nuances remain unresolved; the separate lifecycle study is documented below.
 
 The strict consistency and EOD floor formula are explicit development policies. The validation config remains DLL-off/40% because it validates source data and preserves the existing legacy replay; the account study applies its own separately stated quick-test rules.
 
@@ -82,13 +82,23 @@ The existing replay commands below retain their original behavior.
 
 Python 3.10+; standard library only. This prototype validates the first strategy iteration and replays one evaluation attempt from the beginning of a selected run. NinjaScript and original exports are left unchanged.
 
-## Planned lifecycle study — October 26, 2026
+## Lifecycle study
 
-The active target is the [50-purchase FLEX lifecycle plan](../../../docs/plans/SIM_PROP_PLAN.md): DLL ON at $600, 50% evaluation consistency, $43.20 purchases, funded accounts, payouts, and net cash accounting. See [next steps](../../../docs/plans/SIM_PROP_PLAN.md#current-status-and-next-step) for the remaining execution specification.
+The active target is the [50-purchase FLEX lifecycle plan](../../../docs/plans/SIM_PROP_PLAN.md): DLL ON at $600, 50% evaluation consistency, $43.20 purchases, funded accounts, payouts, and net cash accounting. The independent lifecycle runner is implemented in `lifecycle_study.py`; the original replay commands below remain the DLL-off/40% single-evaluation prototype. The research draft remains separate and cannot be passed to the legacy `--config` loader.
 
-Runnable commands below still describe the existing DLL-off/40% single-evaluation prototype. The study CLI is not implemented. Its [research draft](../../../rules/lucidflex_25k_dll_on_50pct_study_draft.json) cannot be passed to `--config`. Independent start-date batches are deferred.
+Run the lifecycle study from the repository root:
+
+```powershell
+python Strategies/MyStarterPlaybook/simulator/lifecycle_study.py
+```
+
+It validates the saved Analyzer/logger run first, starts on January 1, 2026 by default, and writes to `Strategies/MyStarterPlaybook/simulation-results/lifecycle-study/latest/`, replacing the previous default report each time. Open `dashboard.html` in a browser for the interactive summary, session P&L view, searchable attempt table, account event traces, cash ledger, validation, policies, and source references. Use `--max-attempts`, `--start-date`, `--end-date`, and `--out` to select a smaller attempt count, date window, or separate output folder. Each run includes `account-lifecycle.csv` with one joined row per evaluation attempt, including stage outcomes and periods, P&L, trade counts, CONT/REV entry-signal counts, average trades per observed trading session (including sessions without trades), win rate, realized reward/risk, payouts, and live bonus receipts. Other signal prefixes and the number of sessions with at least one trade are listed separately. `lifecycle-study.json` retains detailed account event traces and input hashes; `session-summary.csv` gives source-level daily counts and P&L. The first full available historical window supported 10 purchases, with 2 passes, 7 breaches, 1 unfinished evaluation, and 2 funded accounts unfinished at data end. It generated no payout receipts. The report is qualified by the rule limitations below; this is not a complete 50-purchase outcome or a repeated-cycle probability study.
 
 The user approved a simpler model for the planned study: use completed-trade net results, check loss limits after each closed trade, and update the trailing floor at session end. Intrabar/tick data is not required. Reports will note that open-trade limit touches are excluded. This does not change the existing prototype's observation-based behavior below.
+
+### LucidLive stage
+
+`live_stage.py` tracks the source-published $25K LucidLive settings after the study-selected payout-5 promotion: $0 starting balance, $1,000 EOD drawdown capped at a -$100 floor, no DLL, a 20-micro ceiling, and the first $1,000 gross live bonus objective ($2,000 profit plus 20 qualifying days, 90/10 split). `lifecycle_study.py` wires that tracker to the selected trader-wide transition. Payout 5 is a deterministic study trigger; Lucid describes entry into a discretionary risk-review pool, not guaranteed promotion. Regular live payout amounts/caps and later bonus-cycle resets are not specified by the source and remain outside modeled cash receipts.
 
 From the repository root:
 
@@ -146,3 +156,5 @@ python -m unittest discover -s Strategies/MyStarterPlaybook/simulator/tests -v
 ```
 
 Boundary tests cover equality breaches, entry-side cost effects, EOD-only ratcheting, cap behavior, consistency, final-session censoring, stop-on-breach behavior, overnight rejection, offset/timestamp handling, invalid inputs, and single deduction of costs. The full real-run invocation above separately exercises reconciliation against Analyzer.
+
+Lifecycle fixtures hand-check the first funded payout and exercise concurrent accounts, payout 5, trader-wide live transition, remaining-simulation closure, first live bonus, the 50-purchase cap, and cash ledger reconciliation. All 49 simulator tests pass. See [first payout](../../../docs/plans/LIFECYCLE_HAND_CHECK.md) and [payout/live hand check](../../../docs/plans/LIFECYCLE_LIVE_HAND_CHECK.md).

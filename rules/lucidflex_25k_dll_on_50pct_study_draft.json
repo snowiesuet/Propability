@@ -22,7 +22,7 @@
     "purchased_attempts_target": 50,
     "max_active_evaluations": 1,
     "replacement_start": "next_eligible_session",
-    "funded_start": "next_eligible_session_subject_to_account_limit",
+    "funded_start": "next_eligible_session; account capacity intentionally excluded",
     "contracts_per_account": 1,
     "instrument": "MNQ",
     "purchase_fee": "43.20",
@@ -30,11 +30,15 @@
     "evaluation_fees_if_50_purchased": "2160.00",
     "use_resets": false,
     "monthly_budget_enforced": false,
-    "withdrawal_timing": null,
-    "withdrawal_amount": null,
-    "start_date": null,
-    "funded_slot_waiting_policy": null,
-    "live_transition_policy": null,
+    "withdrawal_timing": "first_eligible_time_while_funded_account_is_flat",
+    "withdrawal_amount": "maximum_permitted_under_25k_payout_table",
+    "withdrawal_cap_basis_policy": "profit_based_table_interpretation; source wording/table conflict retained",
+    "start_date": "2026-01-01",
+    "ignore_payout_processing_and_settlement_waits": true,
+    "ignore_post_request_trading_pause": true,
+    "account_capacity_policy": "ignore_five_funded_and_ten_combined_account_limits_per_user_instruction",
+    "funded_slot_waiting_policy": "no_capacity_queue",
+    "live_transition_policy": "study_trigger_at_first_account_payout_5; trader_wide_transition_of_eligible_funded_accounts",
     "results_model": "completed_trades_only",
     "intrabar_data_required": false,
     "loss_check_timing": "after_each_completed_trade",
@@ -55,6 +59,7 @@
   "funded": {
     "starting_balance": null,
     "starting_balance_requires_agreement_confirmation": true,
+    "study_starting_balance_policy": "25000_fresh_balance_per_funded_account_user_approved",
     "consistency_required": false,
     "activation_fee": "0",
     "qualifying_days_per_cycle": 5,
@@ -92,7 +97,7 @@
     "intraday_enforcement_basis": null,
     "commission_basis": null,
     "trail_lock_equality_and_rounding": null,
-    "payout_floor_update_order": null,
+    "payout_floor_update_order": "user_policy_lock_at_25100_on_request_before_gross_deduction",
     "study_enforcement_basis": "realized_net_balance_after_completed_trade"
   },
   "daily_loss_limit": {
@@ -115,7 +120,20 @@
     "request_minimum": "500",
     "request_profit_fraction_maximum": "0.50",
     "request_dollar_maximum": "1000",
-    "cap_basis_interpretation": "profit_per_official_table_prose_says_balance",
+    "request_policy": "maximum_permitted_at_first_eligible_time_while_flat",
+    "cap_profit_basis_policy": "current_payout_cycle_net_profit_user_approved",
+    "processing_wait_periods_modeled": false,
+    "post_request_trading_pause_policy": "ignore_per_user_instruction",
+    "study_payout_order": [
+      "lock_mll_at_25100_on_request",
+      "deduct_gross_request_from_account_balance",
+      "credit_90_percent_receipt_immediately",
+      "breach_if_balance_at_or_below_locked_floor"
+    ],
+    "study_floor_order_policy": "user_approved_2026-11-02",
+    "approval_delay": "zero_delay_assumed_by_user_policy",
+    "bank_receipt_delay": "zero_delay_assumed_by_user_policy",
+    "cap_basis_interpretation": "profit_table_interpretation; prose_conflicts",
     "trader_fraction": "0.90",
     "separate_buffer_required": false,
     "requests_final": true,
@@ -127,8 +145,6 @@
     "intraday_request_pauses_trading_until_day_end": true,
     "account_deduction_after_approval": "within_minutes",
     "payment_method_disbursement_after_approval_business_days_max": 2,
-    "approval_delay": null,
-    "bank_receipt_delay": null,
     "processing_fees": null,
     "pending_payout_after_breach": null
   },
@@ -150,12 +166,11 @@
     "cutoff_liquidation_is_automatic_account_failure": false
   },
   "strict_execution_blockers": [
-    "Unresolved DLL session reset/above-trail behavior, floor locking, and rounding mechanics",
+    "Unresolved DLL session reset/above-trail behavior, accounting basis, and rounding mechanics",
     "Unpublished general 50-percent consistency cushion",
     "Unresolved qualifying-day and payout-cycle accounting",
-    "Unresolved withdrawal policy, approval, actual bank receipt, pending payments, and extra costs",
-    "Unresolved funded capital confirmation, funded-slot waiting, and discretionary live transition",
-    "Unselected start date and incomplete calendar/timezone interpretation"
+    "Unknown payout/receipt and other external fees; pending-payment treatment after breach",
+    "Session/holiday calendar and timezone interpretation remain incomplete"
   ],
   "model_limitations": [
     "Completed-trade model approved by the user; open-trade loss-limit touches and intrabar liquidation are excluded. This does not block this study."

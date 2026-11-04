@@ -65,7 +65,8 @@ def load_account_input(run: Path, analyzer_trades: Path, analyzer_summary: Path,
         by_exit[seq] = CompletedTrade(
             row["trade_id"], stamp(row["entry_timestamp"]), stamp(row["exit_timestamp"]),
             day, seq * 2, int(row["quantity"]), number(row["gross_realized_pnl"]),
-            (number(first["execution_quantity"]) + number(last["execution_quantity"])) * commission_per_side)
+            (number(first["execution_quantity"]) + number(last["execution_quantity"])) * commission_per_side,
+            row.get("entry_signal", ""))
 
     events, sessions = [], []
     current = None

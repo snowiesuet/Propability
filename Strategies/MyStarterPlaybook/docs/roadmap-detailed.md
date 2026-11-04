@@ -2,7 +2,7 @@
 
 Paths in code examples and data-folder references are relative to `Strategies/MyStarterPlaybook/` unless stated otherwise. Document links resolve from this file.
 
-Last updated: October 26, 2026 (America/New_York)
+Last updated: November 3, 2026 (America/New_York)
 
 ## Account-engine increments
 
@@ -13,7 +13,7 @@ Last updated: October 26, 2026 (America/New_York)
 
 See the [implementation checkpoints](../../../docs/plans/ACCOUNT_ENGINE_PLAN.md#incremental-delivery-checkpoints). The accounting ledger includes all supplied trades; the engine enforces explicit fixed/EOD trailing, DLL, and stage-specific development rules. Qualifying-day counts alone do not establish payout eligibility. The research draft remains non-executable.
 
-Current stage: **Single-evaluation Python prototype implemented and current 547-trade baseline reconciled with Analyzer.** Layering-disabled ON/OFF trade comparison passed; full platform acceptance, measured costs, and authoritative provider rules remain open. The next milestone is the execution specification for the 50-purchase FLEX lifecycle study; start-date batches are deferred.
+Current stage: **Initial 50-purchase lifecycle coordinator and scorecard implemented.** The full 547-trade source replay supported 10 purchases (2 evaluation passes, 7 breaches, 1 unfinished; 2 funded accounts unfinished), with no payouts. Synthetic multi-account payout/live/cap fixtures and all 49 simulator tests pass. Full provider-rule fidelity, a 50-purchase historical run, layering-enabled platform acceptance, and measured costs remain open. Start-date batch estimates are deferred.
 
 Requirements: [objective.md](../../../docs/requirements/objective.md). Project context: [project.md](project.md). Logging details: [LOGGING.md](LOGGING.md).
 
@@ -103,11 +103,11 @@ Active scope: [50-purchase plan](../../../docs/plans/SIM_PROP_PLAN.md). Follow i
 - [x] Save screenshot evidence, official-rule research, and a separate draft configuration; preserve the existing executable configuration.
 - [x] Validate draft JSON syntax and selected price/count settings; this is not execution acceptance.
 - [x] Record five-funded/ten-total limits and discretionary live-transition constraints.
-- [ ] Resolve DLL session reset and funded above-trail behavior; use realized net losses after completed trades for this version.
+- [ ] Resolve funded DLL above-trail behavior; current model applies $600 throughout funded stage as an explicit assumption.
 - [ ] Resolve floor lock boundary/rounding and withdrawal/floor ordering; intraday enforcement and liquidation are deferred.
 - [ ] Resolve consistency cushion, qualifying-day accounting, funded capital, and payout-cycle reset.
-- [ ] Obtain the user's historical start date and withdrawal timing/amount policy.
-- [ ] Define funded-slot waiting, live-review handling, approval/receipt timing, and pending payouts after termination.
+- [x] Obtain the user's historical start date and withdrawal timing/amount policy (January 1, 2026; immediate modeled receipt).
+- [x] Define capacity handling, payout-5 live transition, approval/receipt timing, and remaining-sim closure as study policies; actual live promotion remains discretionary.
 - [ ] Confirm calendar/timezone interpretation and additional external fees.
 - [x] User approved completed-trade results: closed-trade loss checks, session-end floor updates, and no intrabar/liquidation data requirement. Document the limitation; do not fabricate early exits.
 - [ ] Produce a validated execution configuration rejecting unresolved required inputs.
@@ -125,32 +125,34 @@ Completion gate: every required mechanic has evidence or a named approved modeli
 - [ ] Add quantity scaling and validated support for additional inventory cases.
 - [ ] Confirm provider session/calendar rules and add any required minimum/qualifying-day policies.
 - [ ] Add static and intraday trailing drawdown modes as configuration requires.
-- [ ] Implement daily loss lockouts and account-ending breaches as distinct outcomes.
-- [ ] Implement funded progression, scaling, payout eligibility, withdrawals, and profit splits.
-- [ ] Implement 50 sequential purchases and applicable costs without a monthly budget or paid resets in this study.
+- [x] Implement daily loss lockouts and account-ending breaches as distinct outcomes in the lifecycle runner.
+- [x] Implement funded progression, initial scaling tiers, payout eligibility, withdrawals, and profit splits in the lifecycle prototype.
+- [x] Implement sequential purchases up to 50 and known purchase costs without a monthly budget or paid resets; available data supported 10 purchases.
 - [x] Emit account event histories and trace each result to the source run and rule configuration.
 - [x] Add tests for evaluation boundaries, equality breaches, session rollover, costs, consistency, and incomplete data behavior (13 tests recorded in the prototype evidence).
 - [ ] Test activation rebasing, account isolation, standalone/coordinator agreement, account limits, and incomplete lifecycle outcomes.
-- [ ] Validate funded/payout examples and fee/payout/drawdown ordering before extending the account lifecycle.
+- [ ] Validate funded/payout examples and fee/payout/drawdown ordering with hand-calculated multi-account fixtures.
 
 Completion gate: the supported account engine and 50-purchase lifecycle reconcile against manual fixtures and validated historical observations, including cash accounting and explicit uncertainty.
 
-### Next milestone — execution specification, then lifecycle implementation
+### Next milestone — lifecycle acceptance and rule refinement
 
 - [ ] Close remaining section 5 rule/policy gaps using the approved completed-trade model.
-- [ ] Refactor reusable evaluation/funded state without changing existing replay results.
-- [ ] Implement a study CLI/coordinator: one evaluation, up to five funded accounts, maximum 50 actual purchases.
-- [ ] Include payout requests, approvals, account deductions, bank receipts, and fees in the first release.
-- [ ] Verify manually reconciled multi-account fixtures, independent funded failures, and account activation timing.
-- [ ] Test DLL lockouts, drawdown floors, consistency/winning days, session/DST ordering, and cost deductions.
-- [ ] Validate per-account standalone/coordinator agreement and report provenance.
-- [ ] Report actual purchases if data ends before 50; never repeat source history to fill the count.
+- [x] Implement a separate study CLI/coordinator: one evaluation at a time, concurrent funded accounts, up to 50 actual purchases.
+- [x] Include payout requests, modeled receipts, account deductions, purchase fees, a cash ledger, and a Stat / Value report.
+- [x] Hash source inputs and lifecycle code; retain account traces and cash ledger in JSON output.
+- [x] Verify hand-calculated first payout, concurrent funded progression, payout-5 trader-wide move, eligible-account transition, remaining-sim closure, first live bonus, and cash reconciliation in lifecycle fixtures.
+- [ ] Resolve or retain the DLL-above-trail, consistency-cushion, qualifying-day, unknown external fee, and ordinary live payout limitations.
+- [ ] Validate per-account standalone/coordinator agreement and cross-check report rows against account/cash traces.
+- [x] Report actual purchases if data ends before 50; never repeat source history to fill the count.
 
-Acceptance: current replay remains reproducible, new fixtures reconcile, and uncertain/incomplete outcomes remain explicit. The lifecycle CLI is planned, not implemented. No 50-attempt study has run.
+Fixture evidence: [first payout](../../../docs/plans/LIFECYCLE_HAND_CHECK.md), [payout 5 and live bonus](../../../docs/plans/LIFECYCLE_LIVE_HAND_CHECK.md), and [lifecycle tests](../simulator/tests/test_lifecycle_study.py). The full simulator test suite passes: 49 tests.
+
+Acceptance: current replay remains reproducible, hand-calculated lifecycle fixtures reconcile, and uncertain/incomplete outcomes remain explicit. The lifecycle CLI is implemented; only 10 purchases were supported by the current saved historical period.
 
 ## 7. Comparisons and final findings
 
-- [ ] Deliver the [Stat / Value scorecard](../../../docs/plans/SIM_PROP_PLAN.md#primary-goal-and-scorecard): source trade win rate and average win/loss, actual evaluation pass/breach/pending counts, funded activation, payouts, external costs, and net cash profit.
+- [x] Deliver the [Stat / Value scorecard](../../../docs/plans/SIM_PROP_PLAN.md#primary-goal-and-scorecard): source trade win rate and average win/loss, actual evaluation pass/breach/pending counts, funded activation, payouts, external costs, and net cash profit.
 - [ ] Verify metric denominators, exclude copied-account duplication from source trade statistics, use N/A for empty samples, and reconcile every scorecard value with account/cash traces.
 - [ ] Report evaluation outcomes, funded survival, terminal reasons, and actual attempt counts.
 - [ ] Reconcile qualifying days, payout events, external costs, and net bank cash results to account/cash traces.
@@ -171,6 +173,6 @@ Completion gate: historical outcomes and cash results reconcile to supported inp
 
 ## Python prototype progress
 
-A one-contract, no-layering DLL-off/40% evaluation scenario is implemented with explicit 18:00 source-clock sessions, EOD trailing floor, fixed commissions, pass/breach/incomplete outcomes, event history, and hashed versioned reports. Thirteen boundary/reconciliation tests pass, and the current real run validates against Analyzer. Broader grouped simulator boxes remain open because alternate drawdown modes, scaling, DLL-on, funded stages, payouts, and repeated attempts are not implemented.
+A one-contract, no-layering DLL-off/40% legacy evaluation scenario remains available with explicit 18:00 source-clock sessions, EOD trailing floor, fixed commissions, pass/breach/incomplete outcomes, event history, and hashed versioned reports. The separate lifecycle runner adds DLL-on completed-trade evaluation/funded stages, payouts, cash accounting, and live-transition tracking under explicit assumptions. All 49 simulator tests pass; the current source run validates against Analyzer but supports only 10 sequential purchases. Broader platform acceptance, unresolved provider mechanics, measured costs, and the complete 50-purchase historical result remain open.
 
 See [usage](../simulator/README.md) and [first validated result](../simulation-results/v0.1/20261025T202249Z_3fbf4a08/report.md). Earlier Phase 2 export-path notes describe evidence before the user reorganized the folders; use the run manifest and report hashes for current provenance.

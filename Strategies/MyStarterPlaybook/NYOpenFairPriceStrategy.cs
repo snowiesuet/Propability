@@ -396,21 +396,16 @@ namespace NinjaTrader.NinjaScript.Strategies
             csvLogStage = "Initialize session iterator";
             if (BarsArray == null || BarsArray.Length == 0 || BarsArray[0] == null)
                 throw new InvalidOperationException("Primary bars are unavailable for CSV initialization.");
+
             var initialPosition = Position;
             if (initialPosition == null)
                 throw new InvalidOperationException("Strategy Position is unavailable on the first primary bar.");
+
             csvSessionIterator = new SessionIterator(BarsArray[0]);
             csvLogStage = "Read strategy parameters";
             var metadata = new Dictionary<string, object>();
-            // Capture configured strategy properties without setting any of them.
-            var parameters = new Dictionary<string, object>();
-            foreach (var property in GetType().GetProperties())
-                if (property.IsDefined(typeof(NinjaScriptPropertyAttribute), true) && property.CanRead)
-                {
-                    object value = property.GetValue(this, null);
-                    parameters[property.Name] = value == null ? null : Convert.ToString(value, CultureInfo.InvariantCulture);
-                }
-            metadata["strategy_parameters"] = parameters;
+            metadata["strategy_parameters"] = CsvReadStrategyParameters();
+
             csvLogStage = "Read instrument and session metadata";
             metadata["strategy_name"] = Name;
             metadata["instrument"] = Instrument.FullName;
@@ -422,20 +417,17 @@ namespace NinjaTrader.NinjaScript.Strategies
             metadata["trading_hours_template"] = CsvOptionalProperty(tradingHours, "Name");
             var sessionZone = tradingHours == null ? null : tradingHours.TimeZoneInfo;
             metadata["trading_hours_timezone"] = sessionZone == null ? null : sessionZone.Id;
-            var runtime = new Dictionary<string, object>();
-            foreach (string name in new[] { "Calculate", "EntriesPerDirection", "EntryHandling", "IsUnmanaged", "StopTargetHandling", "IsExitOnSessionCloseStrategy", "ExitOnSessionCloseSeconds", "BarsRequiredToTrade", "OrderFillResolution", "OrderFillResolutionType", "OrderFillResolutionValue", "Slippage", "IncludeCommission", "IsTickReplay", "StartBehavior" })
-            {
-                runtime[name] = CsvOptionalProperty(this, name);
-            }
-            runtime["Bars.IsTickReplay"] = CsvOptionalProperty(BarsArray[0], "IsTickReplay");
-            metadata["runtime_settings"] = runtime;
+            metadata["runtime_settings"] = CsvReadRuntimeSettings();
+
             csvLogStage = "Validate initial strategy position";
             metadata["initial_strategy_quantity"] = initialPosition.Quantity;
             metadata["initial_strategy_market_position"] = initialPosition.MarketPosition.ToString();
             if (initialPosition.MarketPosition != MarketPosition.Flat)
                 throw new InvalidOperationException("CSV accounting requires a flat initial strategy position.");
+
             string root = string.IsNullOrWhiteSpace(CsvLogOutputRoot)
-                ? Path.Combine(NinjaTrader.Core.Globals.UserDataDir, "ContRevBacktestLogs") : CsvLogOutputRoot;
+                ? Path.Combine(NinjaTrader.Core.Globals.UserDataDir, "ContRevBacktestLogs")
+                : CsvLogOutputRoot;
             csvLogStage = "Create CSV output files";
             var options = NinjaTrader.Core.Globals.GeneralOptions;
             TimeZoneInfo sourceZone = options == null ? null : options.TimeZoneInfo;
@@ -443,7 +435,59 @@ namespace NinjaTrader.NinjaScript.Strategies
                 Instrument.MasterInstrument.PointValue, sourceZone,
                 CsvCommissionMode, CsvCommissionPerContractPerSide, metadata);
             csvLogStage = "Initialization complete";
-            try { Print("Cont & Rev CSV logging started: " + csvLogger.DirectoryPath); } catch { }
+            try
+            {
+                Print("Cont & Rev CSV logging started: " + csvLogger.DirectoryPath);
+            }
+            catch { }
+        }
+
+        private Dictionary<string, object> CsvReadStrategyParameters()
+        {
+            var parameters = new Dictionary<string, object>();
+
+            // Capture configured strategy properties without setting any of them.
+            foreach (var property in GetType().GetProperties())
+            {
+                if (!property.IsDefined(typeof(NinjaScriptPropertyAttribute), true) || !property.CanRead)
+                    continue;
+
+                object value = property.GetValue(this, null);
+                parameters[property.Name] = value == null
+                    ? null
+                    : Convert.ToString(value, CultureInfo.InvariantCulture);
+            }
+
+            return parameters;
+        }
+
+        private Dictionary<string, object> CsvReadRuntimeSettings()
+        {
+            var runtime = new Dictionary<string, object>();
+            string[] settingNames =
+            {
+                "Calculate",
+                "EntriesPerDirection",
+                "EntryHandling",
+                "IsUnmanaged",
+                "StopTargetHandling",
+                "IsExitOnSessionCloseStrategy",
+                "ExitOnSessionCloseSeconds",
+                "BarsRequiredToTrade",
+                "OrderFillResolution",
+                "OrderFillResolutionType",
+                "OrderFillResolutionValue",
+                "Slippage",
+                "IncludeCommission",
+                "IsTickReplay",
+                "StartBehavior"
+            };
+
+            foreach (string name in settingNames)
+                runtime[name] = CsvOptionalProperty(this, name);
+
+            runtime["Bars.IsTickReplay"] = CsvOptionalProperty(BarsArray[0], "IsTickReplay");
+            return runtime;
         }
 
         protected override void OnExecutionUpdate(Execution execution, string executionId, double price,
@@ -459,23 +503,41 @@ namespace NinjaTrader.NinjaScript.Strategies
                 int sign = action == "Buy" || action == "BuyToCover" ? 1
                     : action == "Sell" || action == "SellShort" ? -1
                     : marketPosition == MarketPosition.Long ? 1 : marketPosition == MarketPosition.Short ? -1 : 0;
-                var fill = new ContRevFill {
-                    ExecutionId = executionId, OrderId = orderId, Price = price, Quantity = quantity, Time = time,
-                    MarketPosition = marketPosition.ToString(), Sign = sign,
+                var fill = new ContRevFill
+                {
+                    ExecutionId = executionId,
+                    OrderId = orderId,
+                    Price = price,
+                    Quantity = quantity,
+                    Time = time,
+                    MarketPosition = marketPosition.ToString(),
+                    Sign = sign,
                     Side = action ?? (sign > 0 ? "Buy" : sign < 0 ? "Sell" : null),
                     OrderName = execution == null ? null : execution.Name,
                     EntrySignal = order == null ? null : order.FromEntrySignal,
                     Account = execution == null || execution.Account == null ? null : execution.Account.Name,
                     PlatformCommission = execution == null ? (double?)null : execution.Commission,
-                    Phase = State.ToString(), Quality = order == null ? "OrderUnavailable;SideFromExecutionMarketPosition" : "Observed"
+                    Phase = State.ToString(),
+                    Quality = order == null
+                        ? "OrderUnavailable;SideFromExecutionMarketPosition"
+                        : "Observed"
                 };
                 // Entry orders have no FromEntrySignal. Preserve their actual signal name.
                 if (string.IsNullOrEmpty(fill.EntrySignal) &&
-                    (fill.OrderName == "CONT_LONG" || fill.OrderName == "CONT_SHORT" || fill.OrderName == "REV_LONG" || fill.OrderName == "REV_SHORT"))
+                    (fill.OrderName == "CONT_LONG" || fill.OrderName == "CONT_SHORT" ||
+                     fill.OrderName == "REV_LONG" || fill.OrderName == "REV_SHORT"))
+                {
                     fill.EntrySignal = fill.OrderName;
+                }
+
                 CsvLogSafely(delegate
                 {
-                    if (csvLogger != null) { fill.TradingDay = CsvTradingDay(time); csvLogStage = "Write execution"; csvLogger.Execution(fill); }
+                    if (csvLogger == null)
+                        return;
+
+                    fill.TradingDay = CsvTradingDay(time);
+                    csvLogStage = "Write execution";
+                    csvLogger.Execution(fill);
                 });
             }
             catch (Exception ex) { CsvLogFailure(ex); }
@@ -484,10 +546,18 @@ namespace NinjaTrader.NinjaScript.Strategies
         protected override void OnMarketData(MarketDataEventArgs update)
         {
             if (!EnableCsvLogging || csvLoggingFailed || update.MarketDataType != MarketDataType.Last) return;
+
             DateTime time = update.Time;
             double price = update.Price;
             string phase = State.ToString();
-            CsvLogSafely(delegate { if (csvLogger != null) { csvLogStage = "Write last-price observation"; csvLogger.Tick(time, CsvTradingDay(time), phase, price); } });
+            CsvLogSafely(delegate
+            {
+                if (csvLogger == null)
+                    return;
+
+                csvLogStage = "Write last-price observation";
+                csvLogger.Tick(time, CsvTradingDay(time), phase, price);
+            });
         }
 
         private string CsvTradingDay(DateTime time)

@@ -1,12 +1,14 @@
 # Sim Prop Simulator — 50-Attempt Cash-Profit Plan
 
-Status: revised plan; implementation pending. Updated: October 26, 2026.
+Status: lifecycle prototype implemented; rule-complete acceptance pending. Updated: November 3, 2026.
 
 This replaces the earlier first-release plan that deferred payouts and fees. The simulator must model evaluation and funded rules, withdrawals, and all applicable costs before reporting cash profitability.
 
 ## Primary goal and scorecard
 
 Answer: **Does this strategy turn 50 paid prop evaluations into funded accounts and payout income after costs?** The main deliverable is a compact Stat / Value table like the user's example, backed by per-account results. The example's numbers, batches of 10/15 accounts, and probability estimates are illustrative only; they do not change the agreed sequential 50-purchase protocol or selected FLEX rules.
+
+Use the user's two-column table as the final report template; see [SCORECARD_TEMPLATE.md](SCORECARD_TEMPLATE.md). Keep the single chronological 50-purchase result separate from optional repeated-cycle probabilities, which require a separately designed simulation.
 
 | Stat | Definition |
 | --- | --- |
@@ -24,7 +26,7 @@ Answer: **Does this strategy turn 50 paid prop evaluations into funded accounts 
 | Payout count / dollars | Settled payout count and total net trader receipts; requested/approved/unsettled amounts separate |
 | Evaluation fees / other costs | Actual purchase count times $43.20 plus separately recorded external cash costs |
 | Net cash profit | Modeled bank receipts minus external cash costs; $2,160 purchase fees only if all 50 are purchased |
-| Time to pass / first payout | Median and range among accounts reaching each outcome; show sample counts |
+| Account duration | Per-account trading-session duration in the ledger; scorecard gives mean/range to evaluation pass or breach, first payout, and funded-stage end (breach/live/data end), with sample counts |
 
 Compute strategy-level trade statistics once from the validated source results at the selected study sizing/cost basis; never multiply source trade counts by the number of copied accounts. Report any account-filtered trade statistics separately. Empty denominators or absent winners/losers produce N/A, not invented zeros or infinite ratios.
 
@@ -32,19 +34,21 @@ The key economic finding is whether total modeled receipts exceed costs, alongsi
 
 ## Current status and next step
 
-**Latest priority:** implement the independent account engine now, following [ACCOUNT_ENGINE_PLAN.md](ACCOUNT_ENGINE_PLAN.md). Its explicit development policies permit component implementation and tests while the full study's remaining payout/lifecycle specification is resolved in parallel. This does not authorize guessing provider rules or claim the full research draft is executable.
+**Latest priority:** run the coordinator on a longer validated historical input. The independent account engine, validated historical adapter, lifecycle coordinator, payout/cash ledger, Stat / Value report, and initial live-stage tracker are implemented. Run `python Strategies/MyStarterPlaybook/simulator/lifecycle_study.py` to create a new report folder.
 
-**Phase 1 is partially complete; lifecycle implementation has not started.** The existing executable remains the DLL-off/40% single-evaluation prototype. The selected DLL-on/50% study configuration is a research draft, not accepted by that loader.
+**Lifecycle implementation is a prototype, not yet provider-rule complete.** The existing executable remains the DLL-off/40% single-evaluation prototype. The selected DLL-on/50% configuration remains a research draft for that loader; the lifecycle runner uses explicit study settings directly.
 
-Completed: FLEX screenshots saved, PRO archived separately, $43.20 purchase price and $600 DLL ON confirmed, official-rule research saved, and draft JSON syntax/settings checked. Fifty purchases would cost $2,160 before other costs. No 50-attempt study has run.
+Completed: FLEX screenshots saved, PRO archived separately, $43.20 purchase price and $600 DLL ON confirmed, official-rule research saved, lifecycle implementation and one historical run. Fifty purchases would cost $2,160 before other costs. The saved history supported only 10 purchases in this run.
 
-**Next deliverable: an execution specification that closes or explicitly classifies every draft configuration gap.** Work in this order:
+**Next deliverable: run the accepted lifecycle prototype on a longer validated historical input.** Keep unresolved provider mechanics explicit in the report:
 
-1. Resolve the remaining mechanics needed for completed-trade replay: DLL session reset and above-trail behavior; floor lock ordering; consistency cushion/rounding; qualifying-day/cycle accounting; funded starting capital; payment fees and settlement behavior. Save evidence alongside dated research. Intraday enforcement and liquidation mechanics are deferred, not prerequisites for this version.
-2. Obtain user choices for historical start date and withdrawal timing/amount. Document the suggested policy for review before adopting it: request the maximum permitted amount while flat after five completed qualifying days, at the next permitted request time. This is a proposal, not a confirmed policy.
-3. Resolve what happens when a passed evaluation has no funded slot, and how to handle discretionary live review. Enforce the five-funded/ten-total limits. Any hypothetical transition or waiting policy must be labeled; do not silently continue unsupported trading.
+1. Resolve or explicitly model the remaining mechanics needed for completed-trade replay: DLL session reset and above-trail behavior; consistency cushion/rounding; qualifying-day accounting; unknown external fees. The payout/floor sequence is set as a study policy. Intraday enforcement and liquidation mechanics are deferred, not prerequisites for this version.
+2. **Complete — user-selected start date and withdrawal policy (November 2, 2026).** Start on January 1, 2026, the earliest observed session in the validated source. Request the maximum permitted payout at the first eligible time the funded account is flat. Model approval and receipt as immediate at the request timestamp; ignore payout processing, settlement, and post-request trading pauses. Apply 50% of current payout-cycle net profit as the $25K cap basis, capped at $1,000 with a $500 minimum; this is the user's selected interpretation of the conflicting source prose/table.
+3. **Resolved by user policy:** ignore the five-funded/ten-total account capacity limits; do not queue or delay activations for capacity. Model payout 5 as the live-promotion trigger for this study, acknowledging Lucid's actual transition is discretionary. On a modeled trader-wide move, transition eligible funded accounts (at least one payout) to live and close remaining simulated accounts/evaluations as the source describes.
 4. Use the user-approved completed-trade model below. No intrabar data collection or liquidation reconstruction is required for this release.
-5. Produce a validated execution configuration and hand-calculated evaluation/funded/payout fixture. Start Phase 2 once its rule inputs are settled. Independent account-state and ledger infrastructure can be developed meanwhile, but must reject unresolved rules rather than fill them with defaults.
+5. **Hand-calculated fixtures complete:** [LIFECYCLE_HAND_CHECK.md](LIFECYCLE_HAND_CHECK.md) covers evaluation-to-first-payout arithmetic; [LIFECYCLE_LIVE_HAND_CHECK.md](LIFECYCLE_LIVE_HAND_CHECK.md) covers payout 5, live bonus, and the synthetic lifecycle path. A separate fixture verifies the 50-purchase cap. All 49 simulator unit tests pass. Provider-rule limitations remain explicit.
+
+The first lifecycle run produced 10 purchases (2 passes, 7 breaches, 1 unfinished), two funded accounts still unfinished at data end, no payout receipts, and -$432.00 net cash before unverified fees. See the generated report under `Strategies/MyStarterPlaybook/simulation-results/lifecycle-study/`. This one run does not estimate repeated-batch probabilities. The workspace has no other validated trade stream; completing 50 purchases requires longer historical input, and source history must not be repeated to reach the target.
 
 Acceptance for this step: every required value has evidence or a named approved modeling policy; missing values produce clear validation errors; no historical result is presented as authoritative while required mechanics/data remain unresolved.
 
@@ -62,7 +66,7 @@ Report this as a completed-trade simulation: limits touched while trades were op
 - Evaluation purchase price: $43.20 USD per attempt, explicitly confirmed by the user on October 26, 2026, replacing $65. Fifty purchases cost $2,160 before other costs. Hold this selected scenario price fixed and charge only actual purchases; this is not a claim that the coupon remains available for future purchases. The displayed $50 reset fee is not charged under the current new-purchase protocol.
 - Begin at a selected eligible flat session start. After an evaluation passes or fails, start the next evaluation next eligible trading session, until 50 evaluations have been purchased.
 - Maintain at most one active evaluation. Funded accounts continue independently alongside later evaluations, using the same subsequent historical strategy trades and separate rule/accounting state.
-- Respect the researched household limit of five active funded accounts and ten combined evaluation/funded accounts. Block a sixth funded activation; passed-evaluation waiting/expiry and resulting purchase scheduling require an explicit policy before execution.
+- The provider's five-funded/ten-total household limits remain documented as source rules, but are intentionally excluded from this study by user choice. The study therefore does not claim capacity-rule fidelity.
 - After evaluation 50 starts, continue all active accounts until their supported terminal conditions or historical data exhaustion. Do not create evaluation 51, rewind data, fabricate trades, or treat an unfinished account as a failure.
 - If available data cannot support 50 purchases, report the actual count and the shortfall. Do not claim 50 completed cycles while funded accounts remain active.
 - Preserve Python 3.10+, standard-library CLI/report delivery, existing validation/replay commands, original exports, and NinjaTrader trading behavior. Start with one MNQ contract per account.
@@ -78,7 +82,7 @@ Report this as a completed-trade simulation: limits touched while trades were op
 - Headline net cash profit equals bank receipts minus evaluation purchases, paid resets, and other external cash costs. Funded balances, evaluation gains, eligible/requested/approved but unpaid payouts do not count as bank receipts.
 - Deduct commissions and account-level trading fees once from account P&L. Do not deduct them again as external cash expenses unless separately paid from the trader's bank account. Report gross payout requests and net receipts separately.
 - In a backtest, bank receipts are modeled settlements under an explicit confirmed timing policy, not evidence of real deposits. Real paper-trading cash reports require receipt evidence.
-- Unknown prices, payout timing, or rule mechanics remain unresolved. Missing required inputs block an authoritative run rather than defaulting to zero or an invented rule.
+- Unknown costs or rule mechanics remain unresolved. The user selected zero payout processing/settlement delay as a modeling policy; other missing required inputs block an authoritative run rather than defaulting to zero or an invented rule.
 - The 50-attempt study has no monthly purchase-budget constraint, retaining the user's earlier choice; every purchase still incurs its configured fee. Reset purchases are disabled for this protocol: a failed evaluation ends the attempt and its replacement is a new paid evaluation. Supporting a paid reset policy later requires explicit attempt-counting and fee rules.
 
 ## Phase 1 — Confirm protocol, rules, and data
@@ -128,10 +132,10 @@ Report this as a completed-trade simulation: limits touched while trades were op
 ## Inputs still required before an authoritative study
 
 1. Selected scenario is FLEX $25K, DLL ON at $600, $43.20 per evaluation, 50% evaluation consistency, no funded consistency, and free activation. Confirm applicable rule dates, DLL enforcement mechanics, and any additional fees.
-2. Resolve drawdown/session enforcement and consistency or winning-day details applicable to the chosen configuration.
-3. Confirm funded activation, withdrawal amount/timing policy, approval/settlement mechanics, and treatment of pending payouts after termination.
-4. Choose the historical start date and use available validated completed-trade history; report fewer purchases if history ends before attempt 50. Intrabar data is not required.
-5. Define treatment of live review or other provider terminal events without assuming a guaranteed transition date.
+2. Resolve or explicitly model drawdown/session enforcement, consistency or qualifying-day details, and unknown fees.
+3. Funded starting balance, payout cap basis, payout/floor sequence, capacity handling, and live transition policy are set as study policies in [LIFECYCLE_POLICY_REVIEW.md](LIFECYCLE_POLICY_REVIEW.md).
+4. Use the selected January 1, 2026 start date and available validated completed-trade history; report fewer purchases if history ends before attempt 50. Intrabar data is not required.
+5. Live transition is modeled at payout 5 by study choice. Lucid's actual promotion remains discretionary. Regular live payout amounts/caps are not published in the referenced page, so ordinary live receipts remain unmodeled. The first live bonus objective is specified; subsequent repeatable-cycle reset timing remains unmodeled.
 
 ## References
 
